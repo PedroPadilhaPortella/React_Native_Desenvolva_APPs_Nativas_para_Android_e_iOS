@@ -4,7 +4,7 @@ Aplicativo do clássico jogo Campo Minado (Minesweeper), desenvolvido em React N
 
 ## 🎥 Demonstração
 
-![Campo Minado Demonstração](./assets/campo-minado-demo.mp4)
+![Campo Minado Demonstração](../assets/campo-minado-demo.mp4)
 
 ## 🛠️ Tecnologias
 
