@@ -1,6 +1,6 @@
 # React Native - Desenvolva APPs Nativas para Android e iOS
 
-![React Native](./assets/react-native-banner.png)
+![React Native](./assets/react-native-banner.webp)
 
 Repositório com os projetos desenvolvidos durante o curso [React Native - Desenvolva APPs Nativas para Android e iOS](https://www.udemy.com/course/curso-react-native/), disponível na Udemy.
 
