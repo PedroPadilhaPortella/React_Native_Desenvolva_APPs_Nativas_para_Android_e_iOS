@@ -4,7 +4,7 @@ Aplicativo de calculadora desenvolvido em React Native, com suporte às operaç�
 
 ## 🎥 Demonstração
 
-![Calculadora Demonstração](./assets/calculadora-demo.mp4)
+![Calculadora Demonstração](../assets/calculadora-demo.mp4)
 
 ## 🛠️ Tecnologias
 
