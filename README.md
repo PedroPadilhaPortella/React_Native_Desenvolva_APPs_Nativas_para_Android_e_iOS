@@ -12,6 +12,7 @@ O curso aborda os fundamentos do React Native para criação de aplicativos móv
 | --- | --- | --- |
 | Calculadora | Aplicativo de calculadora com operações matemáticas básicas | [Ver projeto](./calculadora) |
 | Campo Minado | Aplicativo do clássico jogo Campo Minado | [Ver projeto](./campo-minado) |
+| CRUD de Usuários | Aplicativo simples de gerenciamento de Usuários | [Ver projeto](./crud-usuarios) |
 
 Cada projeto possui seu próprio README com uma descrição detalhada e um vídeo de demonstração do funcionamento do aplicativo.
 
