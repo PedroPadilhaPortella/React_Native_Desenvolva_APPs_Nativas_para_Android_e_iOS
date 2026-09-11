@@ -1,29 +1,81 @@
-import { useState } from "react";
+import { useReducer } from "react";
+import { useRouter } from "expo-router";
 import {
   ImageBackground,
   Text,
   View,
   StyleSheet,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
+import axios from "axios";
 
 import backgroundImage from "../../assets/images/login.jpg";
-import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { AuthInput } from "@/components/AuthInput";
+import { server, showError } from "@/lib/common";
+
+type State = {
+  email: string;
+  password: string;
+  emailError: string | null;
+  passwordError: string | null;
+};
+
+type Action = | { type: "SET_EMAIL"; payload: string } | { type: "SET_PASSWORD"; payload: string };
+
+const initialState: State = {
+  email: "pedro@nortelli.com",
+  password: "pedro123",
+  emailError: null,
+  passwordError: null,
+};
+
+function validateEmail(email: string): string | null {
+  return email && email.includes("@") ? null : "E-mail inválido";
+}
+
+function validatePassword(password: string): string | null {
+  return password && password.length >= 6 ? null : "Senha inválida";
+}
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "SET_EMAIL":
+      return {
+        ...state,
+        email: action.payload,
+        emailError: validateEmail(action.payload),
+      };
+    case "SET_PASSWORD":
+      return {
+        ...state,
+        password: action.payload,
+        passwordError: validatePassword(action.payload),
+      };
+    default:
+      return state;
+  }
+}
 
 export default function Login() {
   const router = useRouter();
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const isFormValid = !state.emailError && !state.passwordError && state.email && state.password;
 
   const navigateToRegister = () => {
     router.push("/register");
   };
 
-  const login = () => {};
+  const login = async () => {
+    if (!isFormValid) return;
+    try {
+      const response = await axios.post(`${server}/signin`, { email: state.email, password: state.password });
+      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
+      router.push("/today");
+    } catch (error) {
+      showError(error);
+    }
+  };
 
   return (
     <ImageBackground
@@ -35,22 +87,31 @@ export default function Login() {
       <Text style={styles.title}>Tasks</Text>
       <View style={styles.formContainer}>
         <Text style={styles.subtitle}>Faça login na sua conta</Text>
+
         <AuthInput
           icon="mail-outline"
           placeholder="E-mail"
-          value={email}
-          onChangeText={setEmail}
+          value={state.email}
+          onChangeText={(text) => dispatch({ type: "SET_EMAIL", payload: text })}
         />
+        {state.emailError && <Text style={styles.error}>{state.emailError}</Text>}
+
         <AuthInput
           icon="lock-closed-outline"
           placeholder="Senha"
-          value={password}
-          onChangeText={setPassword}
+          value={state.password}
+          onChangeText={(text) => dispatch({ type: "SET_PASSWORD", payload: text })}
           secureTextEntry
         />
-        <TouchableOpacity style={styles.button} onPress={login}>
+        {state.passwordError && <Text style={styles.error}>{state.passwordError}</Text>}
+
+        <TouchableOpacity
+          style={[styles.button, !isFormValid && styles.buttonDisabled]}
+          onPress={login} disabled={!isFormValid}
+        >
           <Text style={styles.buttonLabel}>Entrar</Text>
         </TouchableOpacity>
+
         <TouchableOpacity style={styles.link} onPress={navigateToRegister}>
           <Text style={styles.linkLabel}>Não tenho uma conta</Text>
         </TouchableOpacity>
@@ -107,5 +168,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#fff",
     textDecorationLine: "underline",
+  },
+  error: {
+    color: "#f66",
+    fontSize: 12,
+    marginTop: 4,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
 });
