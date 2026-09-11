@@ -29,15 +29,15 @@ const renderDeleteAction = () => (
       renderRightActions={renderDeleteAction}
     >
       <Pressable style={styles.container} onPress={() => onToggle(task.id)}>
-        <View style={[styles.circle, task.completed && styles.circleChecked]}>
-          {task.completed && <Ionicons name="checkmark" size={14} color="#fff" />}
+        <View style={[styles.circle, task.doneAt && styles.circleChecked]}>
+          {task.doneAt && <Ionicons name="checkmark" size={14} color="#fff" />}
         </View>
 
         <View style={styles.textWrapper}>
-          <Text style={[styles.title, task.completed && styles.titleCompleted]}>
-            {task.title}
+          <Text style={[styles.title, task.doneAt && styles.titleCompleted]}>
+            {task.desc}
           </Text>
-          <Text style={styles.date}>{task.completed ? 'Completar até ' + task.completedAt : 'Feito em ' + task.estimatedAt}</Text>
+          <Text style={styles.date}>{task.doneAt ? 'Feito em ' + task.doneAt : 'Completar até ' + task.estimateAt}</Text>
         </View>
       </Pressable>
     </Swipeable>

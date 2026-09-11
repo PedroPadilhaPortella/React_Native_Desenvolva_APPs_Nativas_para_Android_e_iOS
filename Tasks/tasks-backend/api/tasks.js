@@ -25,7 +25,8 @@ module.exports = (app) => {
     app
       .db("tasks")
       .insert(req.body)
-      .then((_) => res.status(204).send())
+      .returning("*")
+      .then(([task]) => res.status(201).json(task))
       .catch((err) => res.status(400).json(err));
   };
 
@@ -62,7 +63,8 @@ module.exports = (app) => {
           .db("tasks")
           .where({ id: req.params.id, userId: req.user.id })
           .update({ doneAt })
-          .then((_) => res.status(204).send())
+          .returning("*")
+          .then(([task]) => res.status(201).json(task))
           .catch((err) => res.status(400).json(err));
       })
       .catch((err) => res.status(400).json(err));

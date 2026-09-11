@@ -1,24 +1,18 @@
-import {
-  Text,
-  StyleSheet,
-  View,
-  FlatList,
-  Pressable,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useMemo, useState } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { Text, StyleSheet, View, FlatList, Pressable } from "react-native";
 
-import { Task } from "@/models/Task";
-
-import { TaskItem } from "./TaskItem";
+import { loadTasks, removeTask, saveTask, toggleTask } from "@/lib/tasksService";
 import { AddTaskModal } from "./AddTaskModal";
+import { TaskItem } from "./TaskItem";
+import { Task } from "@/models/Task";
 
 import tomorrowImage from "../assets/images/tomorrow.jpg";
 import todayImage from "../assets/images/today.jpg";
 import monthImage from "../assets/images/month.jpg";
 import weekImage from "../assets/images/week.jpg";
-import { loadTasks, saveTasks } from "@/lib/taskStorage";
+import { showError } from "@/lib/common";
 
 export type Period = "today" | "tomorrow" | "week" | "month";
 
@@ -47,54 +41,43 @@ function getFormattedDate() {
 
 export function TaskList({ period }: { period: Period }) {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [loaded, setLoaded] = useState(false);
-  
   const [showCompleted, setShowCompleted] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    loadTasks().then((stored) => {
-      setTasks(stored);
-      setLoaded(true);
-    });
+    loadTasks().then(setTasks);
   }, []);
 
-  useEffect(() => {
-    if (loaded) saveTasks(tasks);
-  }, [tasks, loaded]);
-  
   const visibleTasks = useMemo(
-    () => tasks.filter((t) => showCompleted || !t.completed),
-    [tasks, showCompleted]
+    () => tasks.filter((t) => showCompleted || !t.doneAt),
+    [tasks, showCompleted],
   );
 
-  const handleToggle = (id: string) => {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
-    );
+  const handleToggle = async(id: string) => {
+    const updatedTask = await toggleTask(id);
+
+    if (updatedTask) {
+      setTasks((prev) => prev.map((task) => (task.id === id ? updatedTask : task)));
+    }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async(id: string) => {
+    await removeTask(id);
     setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const handleAdd = (title: string, date: Date) => {
-  const estimatedAt = new Intl.DateTimeFormat("pt-BR", {
-    weekday: "short",
-    day: "numeric",
-    month: "long",
-  }).format(date);
+  const handleAdd = async (desc: string, date: Date) => {
+    if (desc.trim() === "" || !date) {
+      showError("Informações inválidas. Por favor, preencha todos os campos.");
+      return;
+    }
 
-  const newTask: Task = {
-    id: Date.now().toString(),
-    title,
-    estimatedAt,
-    completed: false,
+    const newTask = await saveTask(desc, date.toISOString());
+    if (newTask) {
+      setTasks((prev) => [...prev, newTask]);
+    }
   };
 
-  setTasks((prev) => [...prev, newTask]);
-};
-  
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -124,7 +107,11 @@ export function TaskList({ period }: { period: Period }) {
           data={visibleTasks}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TaskItem task={item} onToggle={handleToggle} onDelete={handleDelete} />
+            <TaskItem
+              task={item}
+              onToggle={handleToggle}
+              onDelete={handleDelete}
+            />
           )}
         />
       </View>
