@@ -2,15 +2,29 @@ const moment = require("moment");
 
 module.exports = (app) => {
   const getTasks = (req, res) => {
-    const date = req.query.date
-      ? req.query.date
+    const maxDate = req.query.maxDate
+      ? moment(req.query.maxDate).endOf("day").toDate()
       : moment().endOf("day").toDate();
 
-    app
+    const query = app
       .db("tasks")
       .where({ userId: req.user.id })
-      .where("estimateAt", "<=", date)
-      .orderBy("estimateAt")
+      .where("estimateAt", "<=", maxDate)
+      .orderBy("estimateAt");
+
+    if (req.query.minDate) {
+      query.where(
+        "estimateAt",
+        ">=",
+        moment(req.query.minDate).startOf("day").toDate(),
+      );
+    }
+
+    if (req.query.onlyPending === "true") {
+      query.whereNull("doneAt");
+    }
+
+    query
       .then((tasks) => res.json(tasks))
       .catch((err) => res.status(400).json(err));
   };

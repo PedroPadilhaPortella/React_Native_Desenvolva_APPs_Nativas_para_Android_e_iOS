@@ -14,13 +14,14 @@ import monthImage from "../assets/images/month.jpg";
 import weekImage from "../assets/images/week.jpg";
 import { showError } from "@/lib/common";
 
-export type Period = "today" | "tomorrow" | "week" | "month";
+export type Period = "today" | "tomorrow" | "week" | "month" | "delayed";
 
 const LABELS: Record<Period, string> = {
   today: "Hoje",
   tomorrow: "Amanhã",
   week: "Semana",
   month: "Mês",
+  delayed: "Atrasadas",
 };
 
 const IMAGES: Record<Period, any> = {
@@ -28,6 +29,7 @@ const IMAGES: Record<Period, any> = {
   tomorrow: tomorrowImage,
   week: weekImage,
   month: monthImage,
+  delayed: todayImage,
 };
 
 function getFormattedDate() {
@@ -45,7 +47,7 @@ export function TaskList({ period }: { period: Period }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
-    loadTasks().then(setTasks);
+    loadTasks(period).then(setTasks);
   }, []);
 
   const visibleTasks = useMemo(

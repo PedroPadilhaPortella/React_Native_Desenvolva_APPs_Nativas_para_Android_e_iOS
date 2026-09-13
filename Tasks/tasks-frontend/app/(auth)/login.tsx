@@ -12,6 +12,7 @@ import axios from "axios";
 import backgroundImage from "../../assets/images/login.jpg";
 import { AuthInput } from "@/components/AuthInput";
 import { server, showError } from "@/lib/common";
+import { useAuth } from "@/context/AuthContext";
 
 type State = {
   email: string;
@@ -57,9 +58,10 @@ function reducer(state: State, action: Action): State {
 }
 
 export default function Login() {
-  const router = useRouter();
   const [state, dispatch] = useReducer(reducer, initialState);
-
+  const { signIn } = useAuth();
+  const router = useRouter();
+  
   const isFormValid = !state.emailError && !state.passwordError && state.email && state.password;
 
   const navigateToRegister = () => {
@@ -68,10 +70,14 @@ export default function Login() {
 
   const login = async () => {
     if (!isFormValid) return;
+  
     try {
       const response = await axios.post(`${server}/signin`, { email: state.email, password: state.password });
-      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
+      
+      const { name, email, token } = response.data;
+      signIn({ name, email }, token);
       router.push("/today");
+      
     } catch (error) {
       showError(error);
     }

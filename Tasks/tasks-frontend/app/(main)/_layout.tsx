@@ -15,6 +15,7 @@ export default function DrawerLayout() {
       <Drawer.Screen name="tomorrow" options={{ title: "Amanhã" }} />
       <Drawer.Screen name="week" options={{ title: "Semana" }} />
       <Drawer.Screen name="month" options={{ title: "Mês" }} />
+      <Drawer.Screen name="delayed" options={{ title: "Atrasadas" }} />
     </Drawer>
   );
 }
